@@ -49,18 +49,36 @@ def play():
     return 'playing'
 
 def options():
+    global selected_algorithm  # Biến toàn cục để lưu thuật toán đã chọn
+
     while True:
         OPTIONS_MOUSE_POS = pygame.mouse.get_pos()
-
         SCREEN.fill("white")
 
-        OPTIONS_TEXT = get_font(45).render("This is the OPTIONS screen.", True, "Black")
-        OPTIONS_RECT = OPTIONS_TEXT.get_rect(center=(400, 260))
+        # Tiêu đề
+        OPTIONS_TEXT = get_font(45).render("Select "
+                                           "Search Algorithm", True, "Black")
+        OPTIONS_RECT = OPTIONS_TEXT.get_rect(center=(400, 100))
         SCREEN.blit(OPTIONS_TEXT, OPTIONS_RECT)
 
-        OPTIONS_BACK = Menu_Button(image=None, pos=(400, 460), 
-                            text_input="BACK", font=get_font(75), base_color="Black", hovering_color="Green")
+        # Radio Button - BFS
+        BFS_BUTTON = Menu_Button(image=None, pos=(400, 300),
+                                 text_input="BFS MODE", font=get_font(40),
+                                 base_color="Black", hovering_color="Green")
+        BFS_BUTTON.changeColor(OPTIONS_MOUSE_POS)
+        BFS_BUTTON.update(SCREEN)
 
+        # Radio Button - A* Search
+        A_STAR_BUTTON = Menu_Button(image=None, pos=(400, 400),
+                                    text_input="A* SEARCH MODE", font=get_font(40),
+                                    base_color="Black", hovering_color="Green")
+        A_STAR_BUTTON.changeColor(OPTIONS_MOUSE_POS)
+        A_STAR_BUTTON.update(SCREEN)
+
+        # Nút Back
+        OPTIONS_BACK = Menu_Button(image=None, pos=(400, 500),
+                                   text_input="BACK", font=get_font(75),
+                                   base_color="Black", hovering_color="Green")
         OPTIONS_BACK.changeColor(OPTIONS_MOUSE_POS)
         OPTIONS_BACK.update(SCREEN)
 
@@ -69,10 +87,20 @@ def options():
                 pygame.quit()
                 sys.exit()
             if event.type == pygame.MOUSEBUTTONDOWN:
+                if BFS_BUTTON.checkForInput(OPTIONS_MOUSE_POS):
+                    selected_algorithm = 'bfs'
+                    print("Thuật toán đã chọn: BFS")  # Debug
+
+                if A_STAR_BUTTON.checkForInput(OPTIONS_MOUSE_POS):
+                    selected_algorithm = 'a_star'
+                    print("Thuật toán đã chọn: A*")  # Debug
+
                 if OPTIONS_BACK.checkForInput(OPTIONS_MOUSE_POS):
-                    return  # Return to main menu
+                    return  # Quay về menu chính
 
         pygame.display.update()
+
+
 
 def main_menu(db, game_state):
     while game_state == 'menu':

@@ -12,6 +12,9 @@ from gameover import show_gameover_screen, show_save_score_screen  # Import the 
 from loadingscreen import show_loading_screen  # Import the loading screen function
 from scoreboard import show_scoreboard  # Import the scoreboard function
 
+
+selected_algorithm = 'a_star'
+
 class MAIN:
     def __init__(self):
         print("Initializing...")  # Debug statement
@@ -25,7 +28,7 @@ class MAIN:
         self.previous_score = len(self.player.body) - 3
         print("Previous score:", self.previous_score)  # Debug statement
         print("Updating...")  # Debug statement
-        self.snake.move_snake(self.fruit.pos, self.player.body, cell_number)
+        self.snake.move_snake(self.fruit.pos, self.player.body, cell_number, selected_algorithm)
         self.player.move_snake()
         self.check_collision()
         self.check_fail()

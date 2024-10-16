@@ -98,16 +98,23 @@ class SNAKE:
 
         self.crunch_sound = pygame.mixer.Sound('Sound/crunch.wav')
 
-    def move_snake(self, fruit_pos, player_body, cell_number):
+    def move_snake(self, fruit_pos, player_body, cell_number, selected_algorithm):
+
         snake_head = self.body[0]
         snake_body_set = set((block.x, block.y) for block in self.body[1:])
         player_body_set = set((block.x, block.y) for block in player_body)
 
-        # Gọi thuật toán A* search
-        path = a_star_search(snake_body_set, player_body_set,
-                             (snake_head.x, snake_head.y),
-                             (fruit_pos.x, fruit_pos.y),
-                             cell_number)
+        # Chọn thuật toán dựa trên lựa chọn của người dùng
+        if selected_algorithm == 'a_star':
+            path = a_star_search(snake_body_set, player_body_set,
+                                 (snake_head.x, snake_head.y),
+                                 (fruit_pos.x, fruit_pos.y),
+                                 cell_number)
+        else:  # BFS
+            path = bfs(snake_body_set, player_body_set,
+                       (snake_head.x, snake_head.y),
+                       (fruit_pos.x, fruit_pos.y),
+                       cell_number)
 
         if path:
             next_move = Vector2(path[0][0], path[0][1]) - snake_head
