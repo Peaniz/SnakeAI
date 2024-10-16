@@ -7,17 +7,18 @@ from pleier import PLAYER
 from freeit import FRUIT
 from sinake import SNAKE
 from snakedb import SnakeDB
-from menu import main_menu, play, options, SCREEN, BG  # Import menu functions and variables
-from gameover import show_gameover_screen, show_save_score_screen  # Import the game over and save score screen functions
-from loadingscreen import show_loading_screen  # Import the loading screen function
-from scoreboard import show_scoreboard  # Import the scoreboard function
+from menu import main_menu, play, options, SCREEN, BG
+from gameover import show_gameover_screen, show_save_score_screen
+from loadingscreen import show_loading_screen
+from scoreboard import show_scoreboard
 
 
 selected_algorithm = 'a_star'
+player_moved = False
 
 class MAIN:
     def __init__(self):
-        print("Initializing...")  # Debug statement
+        print("Initializing...")
         self.previous_score = 0
         self.snake = SNAKE()
         self.player = PLAYER()
@@ -26,15 +27,18 @@ class MAIN:
 
     def update(self):
         self.previous_score = len(self.player.body) - 3
-        print("Previous score:", self.previous_score)  # Debug statement
-        print("Updating...")  # Debug statement
-        self.snake.move_snake(self.fruit.pos, self.player.body, cell_number, selected_algorithm)
+        print("Previous score:", self.previous_score)
+        print("Updating...")
+
+        if player_moved:
+            self.snake.move_snake(self.fruit.pos, self.player.body, cell_number, selected_algorithm)
+
         self.player.move_snake()
         self.check_collision()
         self.check_fail()
 
     def draw_elements(self):
-        print("Drawing elements...")  # Debug statement
+        print("Drawing elements...")
         self.draw_grass()
         self.fruit.draw_fruit(screen, apple, cell_size)
         self.snake.draw_snake(screen, cell_size)
@@ -42,7 +46,7 @@ class MAIN:
         self.draw_score()
 
     def check_collision(self):
-        print("Checking for collision...")  # Debug statement
+        print("Checking for collision...")
         if self.fruit.pos == self.snake.body[0]:
             self.fruit.randomize(cell_number)
             self.snake.add_block()
@@ -62,7 +66,7 @@ class MAIN:
                 self.fruit.randomize(cell_number)
 
     def check_fail(self):
-        print("Checking for failure...")  # Debug statement
+        print("Checking for failure...")
         if not 0 <= self.player.body[0].x < cell_number or not 0 <= self.player.body[0].y < cell_number:
             print("AI thang")
             self.game_over()
@@ -82,14 +86,14 @@ class MAIN:
                 self.game_over()
         
     def game_over(self):
-        print("Game over!") # Debug statement
-        global game_state  # Update previous_score before resetting
+        print("Game over!")
+        global game_state
         game_state = 'gameover'
         self.snake.reset()
         self.player.reset()
 
     def draw_grass(self):
-        print("Drawing grass...")  # Debug statement
+        print("Drawing grass...")
         grass_color = (167,209,61)
         for row in range(cell_number):
             if row % 2 == 0: 
@@ -105,7 +109,7 @@ class MAIN:
 
     def draw_score(self):
         score_text = str(len(self.player.body) - 3)
-        print("Player score:", score_text);  # Debug statement
+        print("Player score:", score_text);
         score_surface = game_font.render(score_text,True,(56,74,12))
         score_x = int(cell_size * cell_number - 60)
         score_y = int(cell_size * cell_number - 40)
@@ -127,7 +131,6 @@ clock = pygame.time.Clock()
 apple = pygame.image.load('Graphics/apple.png').convert_alpha()
 game_font = pygame.font.Font('Font/PoetsenOne-Regular.ttf', 25)
 
-# Show loading screen
 show_loading_screen(screen, cell_number, cell_size)
 
 SCREEN_UPDATE = pygame.USEREVENT
@@ -147,24 +150,25 @@ while True:
             if event.type == SCREEN_UPDATE:
                 main_game.update()
             if event.type == pygame.KEYDOWN:
-                if event.key == pygame.K_UP:
-                    if main_game.player.direction.y != 1:
-                        main_game.player.direction = Vector2(0, -1)
-                if event.key == pygame.K_RIGHT:
-                    if main_game.player.direction.x != -1:
-                        main_game.player.direction = Vector2(1, 0)
-                if event.key == pygame.K_DOWN:
-                    if main_game.player.direction.y != -1:
-                        main_game.player.direction = Vector2(0, 1)
-                if event.key == pygame.K_LEFT:
-                    if main_game.player.direction.x != 1:
-                        main_game.player.direction = Vector2(-1, 0)
+                if event.key == pygame.K_UP and main_game.player.direction.y != 1:
+                    main_game.player.direction = Vector2(0, -1)
+                    player_moved = True
+                elif event.key == pygame.K_RIGHT and main_game.player.direction.x != -1:
+                    main_game.player.direction = Vector2(1, 0)
+                    player_moved = True
+                elif event.key == pygame.K_DOWN and main_game.player.direction.y != -1:
+                    main_game.player.direction = Vector2(0, 1)
+                    player_moved = True
+                elif event.key == pygame.K_LEFT and main_game.player.direction.x != 1:
+                    main_game.player.direction = Vector2(-1, 0)
+                    player_moved = True
 
         screen.fill((175, 215, 70))
         main_game.draw_elements()
         pygame.display.update()
         clock.tick(120)
     elif game_state == 'gameover':
+        player_moved = False
         game_state = show_gameover_screen(screen, main_game.previous_score, cell_number, cell_size)
     elif game_state == 'save_score':
         game_state = show_save_score_screen(main_game.db, screen, main_game.previous_score, cell_number, cell_size)

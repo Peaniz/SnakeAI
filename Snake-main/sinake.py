@@ -4,7 +4,6 @@ from collections import deque
 import heapq
 
 def heuristic(a, b):
-    # Hàm heuristic sử dụng khoảng cách Manhattan
     return abs(a[0] - b[0]) + abs(a[1] - b[1])
 
 def a_star_search(snake_body, player_body, start, goal, grid_size):
@@ -24,7 +23,7 @@ def a_star_search(snake_body, player_body, start, goal, grid_size):
             neighbor = (current[0] + direction[0], current[1] + direction[1])
             if (0 <= neighbor[0] < grid_size and 0 <= neighbor[1] < grid_size and
                 neighbor not in snake_body and neighbor not in player_body):
-                new_cost = cost_so_far[current] + 1  # Mỗi bước có chi phí bằng 1
+                new_cost = cost_so_far[current] + 1
                 if neighbor not in cost_so_far or new_cost < cost_so_far[neighbor]:
                     cost_so_far[neighbor] = new_cost
                     priority = new_cost + heuristic(neighbor, goal)
@@ -104,7 +103,6 @@ class SNAKE:
         snake_body_set = set((block.x, block.y) for block in self.body[1:])
         player_body_set = set((block.x, block.y) for block in player_body)
 
-        # Chọn thuật toán dựa trên lựa chọn của người dùng
         if selected_algorithm == 'a_star':
             path = a_star_search(snake_body_set, player_body_set,
                                  (snake_head.x, snake_head.y),
