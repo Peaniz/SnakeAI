@@ -1,6 +1,45 @@
 import pygame
 from pygame.math import Vector2
 from collections import deque
+import heapq
+
+def heuristic(a, b):
+    # Hàm heuristic sử dụng khoảng cách Manhattan
+    return abs(a[0] - b[0]) + abs(a[1] - b[1])
+
+def a_star_search(snake_body, player_body, start, goal, grid_size):
+    directions = [(0, 1), (0, -1), (1, 0), (-1, 0)]
+    open_list = []
+    heapq.heappush(open_list, (0, start))
+    came_from = {start: None}
+    cost_so_far = {start: 0}
+
+    while open_list:
+        _, current = heapq.heappop(open_list)
+
+        if current == goal:
+            break
+
+        for direction in directions:
+            neighbor = (current[0] + direction[0], current[1] + direction[1])
+            if (0 <= neighbor[0] < grid_size and 0 <= neighbor[1] < grid_size and
+                neighbor not in snake_body and neighbor not in player_body):
+                new_cost = cost_so_far[current] + 1  # Mỗi bước có chi phí bằng 1
+                if neighbor not in cost_so_far or new_cost < cost_so_far[neighbor]:
+                    cost_so_far[neighbor] = new_cost
+                    priority = new_cost + heuristic(neighbor, goal)
+                    heapq.heappush(open_list, (priority, neighbor))
+                    came_from[neighbor] = current
+
+    path = []
+    if goal in came_from:
+        current = goal
+        while current != start:
+            path.append(current)
+            current = came_from[current]
+        path.reverse()
+    return path
+
 
 def bfs(snake_body,player_body, start, goal, grid_size):
     directions = [(0, 1), (0, -1), (1, 0), (-1, 0)]  
@@ -63,7 +102,12 @@ class SNAKE:
         snake_head = self.body[0]
         snake_body_set = set((block.x, block.y) for block in self.body[1:])
         player_body_set = set((block.x, block.y) for block in player_body)
-        path = bfs(snake_body_set, player_body_set, (snake_head.x, snake_head.y), (fruit_pos.x, fruit_pos.y), cell_number)
+
+        # Gọi thuật toán A* search
+        path = a_star_search(snake_body_set, player_body_set,
+                             (snake_head.x, snake_head.y),
+                             (fruit_pos.x, fruit_pos.y),
+                             cell_number)
 
         if path:
             next_move = Vector2(path[0][0], path[0][1]) - snake_head
@@ -79,6 +123,27 @@ class SNAKE:
             body_copy = self.body[:-1]
             body_copy.insert(0, body_copy[0] + self.direction)
             self.body = body_copy[:]
+
+    # def move_snake(self, fruit_pos, player_body, cell_number):
+    #     snake_head = self.body[0]
+    #     snake_body_set = set((block.x, block.y) for block in self.body[1:])
+    #     player_body_set = set((block.x, block.y) for block in player_body)
+    #     path = bfs(snake_body_set, player_body_set, (snake_head.x, snake_head.y), (fruit_pos.x, fruit_pos.y), cell_number)
+    #
+    #     if path:
+    #         next_move = Vector2(path[0][0], path[0][1]) - snake_head
+    #         if abs(next_move.x) <= 1 and abs(next_move.y) <= 1:
+    #             self.direction = next_move
+    #
+    #     if self.new_block:
+    #         body_copy = self.body[:]
+    #         body_copy.insert(0, body_copy[0] + self.direction)
+    #         self.body = body_copy[:]
+    #         self.new_block = False
+    #     else:
+    #         body_copy = self.body[:-1]
+    #         body_copy.insert(0, body_copy[0] + self.direction)
+    #         self.body = body_copy[:]
 
     def draw_snake(self, screen, cell_size):
         self.update_head_graphics()
