@@ -23,6 +23,7 @@ def a_star_search(snake_body, player_body, start, goal, grid_size):
             neighbor = (current[0] + direction[0], current[1] + direction[1])
             if (0 <= neighbor[0] < grid_size and 0 <= neighbor[1] < grid_size and
                 neighbor not in snake_body and neighbor not in player_body):
+                
                 new_cost = cost_so_far[current] + 1
                 if neighbor not in cost_so_far or new_cost < cost_so_far[neighbor]:
                     cost_so_far[neighbor] = new_cost
@@ -40,7 +41,7 @@ def a_star_search(snake_body, player_body, start, goal, grid_size):
     return path
 
 
-def bfs(snake_body,player_body, start, goal, grid_size):
+def bfs(snake_body, player_body, start, goal, grid_size):
     directions = [(0, 1), (0, -1), (1, 0), (-1, 0)]  
     queue = deque([start])
     came_from = {start: None}
